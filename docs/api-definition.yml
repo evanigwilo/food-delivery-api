@@ -1,0 +1,1464 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Food-Delivery API'
+  description: |
+    Food-Delivery API based on the OpenAPI 3.0 specification.
+
+    Useful links:
+    - [Food-Delivery API Repository](https://github.com/evanigwilo/food-delivery-api)
+    - [The API Definition](https://github.com/evanigwilo/food-delivery-api/blob/main/docs/api-definition.yml)
+tags:
+  - name: User
+    description: Access to user related endpoints
+  - name: Country
+    description: Access to country related endpoints
+  - name: Location
+    description: Access to Location related endpoints
+  - name: Restaurant
+    description: Access to restaurant related endpoints
+  - name: Menu
+    description: Access to restaurant menu related endpoints
+  - name: Food
+    description: Access to food related endpoints
+  - name: Order
+    description: Access to orders related endpoints
+
+paths:
+  # User
+  /user/authenticate:
+    get:
+      tags:
+        - User
+      description: This can only be done by an authenticated user.
+      summary: Gets user attributes for the current authenticated user
+      responses:
+        '200':
+          description: Returns user attributes
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'User authenticated.'
+                  user:
+                    id: 'ec629d77-2920-4f1c-b559-409d2832be6a'
+                    email: 'john@delivery.com'
+                    username: 'john'
+                    createdDate: '2023-06-22T18:39:57.114Z'
+                    updatedDate: '2023-06-22T18:39:57.114Z'
+                    balance:
+                      id: '7fe7ec22-0d88-434f-84f5-ccf31b601905'
+                      amount: '1000.00'
+                      createdDate: '2023-06-22T18:37:44.568Z'
+                      updatedDate: '2023-06-22T18:37:44.568Z'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /user/register:
+    post:
+      tags:
+        - User
+      summary: Register and returns the authentication cookie
+      security: [] # no authentication
+      requestBody:
+        required: true
+        description: Sample register information.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                gender:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              example:
+                username: 'john'
+                email: 'john@delivery.com'
+                password: '123456'
+      responses:
+        '201':
+          description: |
+            Successfully registers user.
+
+            Returns user attributes and cookies that are to be included in subsequent requests.
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'User created successfully.'
+                  user:
+                    id: 'ec629d77-2920-4f1c-b559-409d2832be6a'
+                    email: 'john@delivery.com'
+                    username: 'john'
+                    createdDate: '2023-06-22T18:39:57.114Z'
+                    updatedDate: '2023-06-22T18:39:57.114Z'
+                    balance:
+                      id: '7fe7ec22-0d88-434f-84f5-ccf31b601905'
+                      amount: '1000.00'
+                      createdDate: '2023-06-22T18:37:44.568Z'
+                      updatedDate: '2023-06-22T18:37:44.568Z'
+          headers:
+            Set-Cookie:
+              schema:
+                $ref: '#/components/schemas/SetCookie'
+        '400':
+          description: ''
+          content:
+            application/json:
+              examples:
+                Username or Email Exist:
+                  description: User with corresponding email or username already exists
+                  value:
+                    code: FORBIDDEN
+                    message: Username or Email already exist.
+                Email Invalid:
+                  description: Email is not supplied or is invalid
+                  value:
+                    code: INPUT_ERROR
+                    message: Email - Email is invalid.
+                Username Invalid:
+                  description: Username is not supplied or is invalid
+                  value:
+                    code: INPUT_ERROR
+                    message: Username - Username should contain only letters and numbers.
+  /user/login:
+    post:
+      tags:
+        - User
+      summary: Logs in and returns the authentication cookie
+      security: [] # no authentication
+      requestBody:
+        required: true
+        description: Sample login and password.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identity
+                - password
+              properties:
+                identity:
+                  type: string
+                password:
+                  type: string
+              example:
+                identity: 'john'
+                password: '123456'
+      responses:
+        '200':
+          description: |
+            Successfully authenticated.
+
+            Returns user attributes and cookies that are to be included  in subsequent requests.
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'User login successfully.'
+                  user:
+                    id: 'ec629d77-2920-4f1c-b559-409d2832be6a'
+                    email: 'john@delivery.com'
+                    username: 'john'
+                    createdDate: '2023-06-22T18:39:57.114Z'
+                    updatedDate: '2023-06-22T18:39:57.114Z'
+                  balance:
+                    id: '7fe7ec22-0d88-434f-84f5-ccf31b601905'
+                    amount: '1000.00'
+                    createdDate: '2023-06-22T18:37:44.568Z'
+                    updatedDate: '2023-06-22T18:37:44.568Z'
+          headers:
+            Set-Cookie:
+              schema:
+                $ref: '#/components/schemas/SetCookie'
+        '400':
+          description: ''
+          content:
+            application/json:
+              examples: # Multiple examples
+                Username or Email Does Not Exist:
+                  description: User with corresponding email or username does not exists
+                  value:
+                    code: INPUT_ERROR
+                    message: Username or Email doesn't exist.
+                Password Invalid:
+                  description: Password is not supplied or is invalid
+                  value:
+                    code: INPUT_ERROR
+                    message: Incorrect password.
+  /user/logout:
+    post:
+      tags:
+        - User
+      summary: Logs out and deletes the authenticated cookie
+      security: [] # no authentication
+      responses:
+        '204':
+          description: |
+            Successfully logged out and clears cookie.
+
+            Returns no content.
+          headers:
+            Set-Cookie:
+              # clears cookie
+              schema:
+                type: array
+                items:
+                  type: string
+                example: 'SESSION_ID=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT'
+
+  # Country
+  /country:
+    post:
+      tags:
+        - Country
+      summary: Gets countries for creating locations
+      security: [] # no authentication
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns supported countries for creating locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  countries:
+                    - code: 'US'
+                      name: 'United States'
+                      emoji: '🇺🇸'
+                    - code: 'CN'
+                      name: 'China'
+                      emoji: '🇨🇳'
+                    - code: 'GH'
+                      name: 'Ghana'
+                      emoji: '🇬🇭'
+                  count: 2
+                  limit: 10
+                  offset: 0
+  /country/create:
+    post:
+      tags:
+        - Country
+      summary: Creates a country
+      description: This can only be done by an authenticated user
+      operationId: createCountry
+      requestBody:
+        required: true
+        description: Country description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Country'
+      responses:
+        '200':
+          description: Country to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Country created successfully.'
+                country:
+                  name: 'Egypt'
+                  code: 'EG'
+                  emoji: '🇪🇬'
+
+        '400':
+          description: Country to create was not successful
+          content:
+            application/json:
+              examples:
+                Invalid Country Code:
+                  $ref: '#/components/examples/InvalidCountryCode'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /country/{countryId}:
+    get:
+      tags:
+        - Country
+      summary: Get a country by id
+      security: [] # no authentication
+      operationId: getCountry
+      parameters:
+        - $ref: '#/components/parameters/Country'
+      responses:
+        '200':
+          description: Returns country with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Country found.'
+                  country:
+                    name: 'Egypt'
+                    code: 'EG'
+                    emoji: '🇪🇬'
+        '204':
+          description: |
+            Country not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Country
+      summary: Update country by id
+      description: This can only be done by an authenticated user who created the country.
+      operationId: updateCountry
+      requestBody:
+        $ref: '#/components/requestBodies/Country'
+      parameters:
+        - $ref: '#/components/parameters/Country'
+      responses:
+        '200':
+          description: Country to update was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Country Updated.'
+
+        '400':
+          description: Country to update was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/CountryNotFound'
+                Invalid Country Code:
+                  $ref: '#/components/examples/InvalidCountryCode'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Country
+      summary: Delete country by id
+      description: This can only be done by an authenticated user who created the country.
+      operationId: deleteCountry
+      parameters:
+        - $ref: '#/components/parameters/Country'
+      responses:
+        '200':
+          description: Country to delete was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Country Deleted.'
+
+        '400':
+          description: Country to delete was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/CountryNotFound'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Location
+  /location:
+    post:
+      tags:
+        - Location
+      summary: Gets locations for creating restaurants (and users)
+      security: [] # no authentication
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns supported locations for creating restaurants.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  locations:
+                    - id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                      address: '49010 Mackenzie Isle'
+                      phone: '1-676-377-5560 x90983'
+                      country:
+                        code: 'US'
+                        name: 'United States'
+                        emoji: '🇺🇸'
+                    - id: '529f4485-2d30-4ea4-938f-8b73b2c83c31'
+                      address: '4877 Theodore Mission'
+                      phone: '979-587-7058 x35058'
+                      country:
+                        code: 'US'
+                        name: 'United States'
+                        emoji: '🇺🇸'
+                  count: 2
+                  limit: 10
+                  offset: 0
+  /location/create:
+    post:
+      tags:
+        - Location
+      summary: Creates a location
+      description: This can only be done by an authenticated user.
+      operationId: createLocation
+      requestBody:
+        required: true
+        description: Location description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        '200':
+          description: Location to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Location created successfully.'
+                location:
+                  id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                  address: '49010 Mackenzie Isle'
+                  phone: '1-676-377-5560 x90983'
+                  country:
+                    id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                    code: 'US'
+                    name: 'United States'
+                    emoji: '🇺🇸'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /location/{locationId}:
+    get:
+      tags:
+        - Location
+      summary: Get a location by id
+      security: [] # no authentication
+      operationId: getLocation
+      parameters:
+        - $ref: '#/components/parameters/Location'
+      responses:
+        '200':
+          description: Returns location with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Location found.'
+                  location:
+                    id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                    address: '49010 Mackenzie Isle'
+                    phone: '1-676-377-5560 x90983'
+                    country:
+                      id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                      code: 'US'
+                      name: 'United States'
+                      emoji: '🇺🇸'
+        '204':
+          description: |
+            Location not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Location
+      summary: Update location by id
+      description: This can only be done by an authenticated user who created the location.
+      operationId: updateLocation
+      requestBody:
+        $ref: '#/components/requestBodies/Location'
+      parameters:
+        - $ref: '#/components/parameters/Location'
+      responses:
+        '200':
+          description: Location to update was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Location Updated.'
+
+        '400':
+          description: Location to update was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/LocationNotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Location
+      summary: Delete location by id
+      description: This can only be done by an authenticated user who created the location.
+      operationId: deleteLocation
+      parameters:
+        - $ref: '#/components/parameters/Location'
+      responses:
+        '200':
+          description: Location to delete was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Location Deleted.'
+
+        '400':
+          description: Location to delete was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/LocationNotFound'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Restaurant
+  /restaurant:
+    post:
+      tags:
+        - Restaurant
+      summary: Gets restaurants for creating menus
+      security: [] # no authentication
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns supported restaurants for creating menus
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example:
+                  restaurants:
+                    - id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                      name: 'Tikkaway'
+                      rating: 7
+                      location:
+                        id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                        address: '49010 Mackenzie Isle'
+                        phone: '1-676-377-5560 x90983'
+                        country:
+                          id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                          code: 'US'
+                          name: 'United States'
+                          emoji: '🇺🇸'
+                    - id: '8acd3b4f-8f7d-49df-ab8a-83770038694d'
+                      name: 'Curry Kingdom'
+                      rating: 9
+                      location:
+                        id: '529f4485-2d30-4ea4-938f-8b73b2c83c31'
+                        address: '4877 Theodore Mission'
+                        phone: '979-587-7058 x35058'
+                        country:
+                          id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                          code: 'US'
+                          name: 'United States'
+                          emoji: '🇺🇸'
+                  count: 2
+                  limit: 10
+                  offset: 0
+  /restaurant/create:
+    post:
+      tags:
+        - Restaurant
+      summary: Creates a restaurant
+      description: This can only be done by an authenticated user.
+      operationId: createRestaurant
+      requestBody:
+        required: true
+        description: Restaurant description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Restaurant'
+      responses:
+        '200':
+          description: Restaurant to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Restaurant created successfully.'
+                restaurant:
+                  id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                  name: 'Tikkaway'
+                  rating: 7
+                  location:
+                    id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                    address: '49010 Mackenzie Isle'
+                    phone: '1-676-377-5560 x90983'
+                    country:
+                      id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                      code: 'US'
+                      name: 'United States'
+                      emoji: '🇺🇸'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /restaurant/{restaurantId}:
+    get:
+      tags:
+        - Restaurant
+      summary: Get a restaurant by id
+      security: [] # no authentication
+      operationId: getRestaurant
+      parameters:
+        - $ref: '#/components/parameters/Restaurant'
+      responses:
+        '200':
+          description: Returns restaurant with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Restaurant found.'
+                  restaurant:
+                    id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                    name: 'Tikkaway'
+                    rating: 7
+                    location:
+                      id: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+                      address: '49010 Mackenzie Isle'
+                      phone: '1-676-377-5560 x90983'
+                      country:
+                        id: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+                        code: 'US'
+                        name: 'United States'
+                        emoji: '🇺🇸'
+        '204':
+          description: |
+            Restaurant not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Restaurant
+      summary: Update restaurant by id
+      description: This can only be done by an authenticated user who created the restaurant.
+      operationId: updateRestaurant
+      requestBody:
+        $ref: '#/components/requestBodies/Restaurant'
+      parameters:
+        - $ref: '#/components/parameters/Restaurant'
+      responses:
+        '200':
+          description: Restaurant to update was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Restaurant Updated.'
+
+        '400':
+          description: Restaurant to update was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/RestaurantNotFound'
+                Invalid Rating:
+                  description: Restaurant rating is invalid
+                  value:
+                    code: 'INPUT_ERROR'
+                    message: 'Rating - Rating should be between 0 and 10.'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Restaurant
+      summary: Delete restaurant by id
+      description: This can only be done by an authenticated user who created the restaurant.
+      operationId: deleteRestaurant
+      parameters:
+        - $ref: '#/components/parameters/Restaurant'
+      responses:
+        '200':
+          description: Restaurant to delete was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Restaurant Deleted.'
+
+        '400':
+          description: Restaurant to delete was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/RestaurantNotFound'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Menu
+  /menu:
+    post:
+      tags:
+        - Menu
+      summary: Gets menus for creating foods
+      security: [] # no authentication
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns supported menus for creating foods
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  menus:
+                    - id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                      name: 'Breakfast Menu'
+                      active: true
+                      restaurant:
+                        id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                        name: 'Tikkaway'
+                        rating: 7
+                    - id: 'd282057d-abe0-4a3d-986b-1d4469093401'
+                      name: 'Dinner Menu'
+                      active: true
+                      restaurant:
+                        id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                        name: 'Tikkaway'
+                        rating: 7
+                  count: 2
+                  limit: 10
+                  offset: 0
+  /menu/create:
+    post:
+      tags:
+        - Menu
+      summary: Creates a menu
+      description: This can only be done by an authenticated user.
+      operationId: createMenu
+      requestBody:
+        required: true
+        description: Menu description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Menu'
+      responses:
+        '200':
+          description: Menu to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Menu created successfully.'
+                menu:
+                  id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                  name: 'Breakfast Menu'
+                  active: true
+                  restaurant:
+                    id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                    name: 'Tikkaway'
+                    rating: 7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /menu/{menuId}:
+    get:
+      tags:
+        - Menu
+      summary: Get a menu by id
+      security: [] # no authentication
+      operationId: getMenu
+      parameters:
+        - $ref: '#/components/parameters/Menu'
+      responses:
+        '200':
+          description: Returns menu with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Menu found.'
+                  menu:
+                    id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                    name: 'Breakfast Menu'
+                    active: true
+                    restaurant:
+                      id: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+                      name: 'Tikkaway'
+                      rating: 7
+        '204':
+          description: |
+            Menu not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Menu
+      summary: Update menu by id
+      description: This can only be done by an authenticated user who created the menu.
+      operationId: updateMenu
+      requestBody:
+        $ref: '#/components/requestBodies/Menu'
+      parameters:
+        - $ref: '#/components/parameters/Menu'
+      responses:
+        '200':
+          description: Menu to update was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Menu Updated.'
+
+        '400':
+          description: Menu to update was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/MenuNotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Menu
+      summary: Delete menu by id
+      description: This can only be done by an authenticated user who created the menu.
+      operationId: deleteMenu
+      parameters:
+        - $ref: '#/components/parameters/Menu'
+      responses:
+        '200':
+          description: Menu to delete was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Menu Deleted.'
+
+        '400':
+          description: Menu to delete was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/MenuNotFound'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Food
+  /food:
+    post:
+      tags:
+        - Food
+      summary: Gets foods
+      security: [] # no authentication
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns supported foods created
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  foods:
+                    - id: '241459c5-1f15-4c1a-80b6-36a72314750a'
+                      name: 'Small Fresh Tuna'
+                      price: 20
+                      menu:
+                        id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                        name: 'Breakfast Menu'
+                        active: true
+                    - id: '03d342ac-175e-49ec-9156-ee12a1673823'
+                      name: 'Pizza'
+                      price: 50
+                      menu:
+                        id: 'd282057d-abe0-4a3d-986b-1d4469093401'
+                        name: 'Dinner Menu'
+                        active: true
+                  count: 2
+                  limit: 10
+                  offset: 0
+  /food/create:
+    post:
+      tags:
+        - Food
+      summary: Creates a food
+      description: This can only be done by an authenticated user.
+      operationId: createFood
+      requestBody:
+        required: true
+        description: Food description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Food'
+      responses:
+        '200':
+          description: Food to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Food created successfully.'
+                food:
+                  id: '241459c5-1f15-4c1a-80b6-36a72314750a'
+                  name: 'Small Fresh Tuna'
+                  price: 20
+                  menu:
+                    id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                    name: 'Breakfast Menu'
+                    active: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /food/{foodId}:
+    get:
+      tags:
+        - Food
+      summary: Get a food by id
+      security: [] # no authentication
+      operationId: getFood
+      parameters:
+        - $ref: '#/components/parameters/Food'
+      responses:
+        '200':
+          description: Returns food with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Food found.'
+                  food:
+                    id: '241459c5-1f15-4c1a-80b6-36a72314750a'
+                    name: 'Small Fresh Tuna'
+                    price: 20
+                    menu:
+                      id: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+                      name: 'Breakfast Menu'
+                      active: true
+        '204':
+          description: |
+            Food not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Food
+      summary: Update food by id
+      description: This can only be done by an authenticated user who created the food.
+      operationId: updateFood
+      requestBody:
+        $ref: '#/components/requestBodies/Food'
+      parameters:
+        - $ref: '#/components/parameters/Food'
+      responses:
+        '200':
+          description: Food to update was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Food Updated.'
+
+        '400':
+          description: Food to update was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/FoodNotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    delete:
+      tags:
+        - Food
+      summary: Delete food by id
+      description: This can only be done by an authenticated user who created the food.
+      operationId: deleteFood
+      parameters:
+        - $ref: '#/components/parameters/Food'
+      responses:
+        '200':
+          description: Food to delete was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Food Deleted.'
+
+        '400':
+          description: Food to delete was not successful
+          content:
+            application/json:
+              examples:
+                Failed:
+                  $ref: '#/components/examples/FoodNotFound'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+
+  # Order
+  /order:
+    post:
+      tags:
+        - Order
+      summary: Gets user orders
+      description: This can only be done by an authenticated user.
+      requestBody:
+        $ref: '#/components/requestBodies/Pagination'
+      responses:
+        '200':
+          description: Returns user orders
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  code: 'SUCCESS'
+                  message: 'All Orders.'
+                  orders:
+                    id: '032142ab-9f0d-443e-9347-d24ec084e985'
+                    status: 'PENDING'
+                    amount: 70.00
+                    count: 2
+                    items:
+                      - id: 'f250c14c-289d-4159-bd21-35828668bf7e'
+                        food_name: 'Small Fresh Tuna'
+                        food_price: 20.00
+                        count: 1
+                        menu: 'Breakfast Menu'
+                        restaurant_name: 'Tikkaway'
+                        restaurant_address: '49010 Mackenzie Isle'
+                        restaurant_country: 'United States'
+                      - id: '32739a7f-4667-402e-9d44-3e6493a4a564'
+                        food_name: 'Pizza'
+                        food_price: 50.00
+                        count: 1
+                        menu: 'Dinner Menu'
+                        restaurant_name: 'Tikkaway'
+                        restaurant_address: '49010 Mackenzie Isle'
+                        restaurant_country: 'United States'
+                  status:
+                    pending: 1
+                    failed: 0
+                    paid: 0
+                  count: 1
+                  limit: 10
+                  offset: 0
+  /order/create:
+    post:
+      tags:
+        - Order
+      summary: Creates an order
+      description: This can only be done by an authenticated user.
+      operationId: createOrder
+      requestBody:
+        required: true
+        description: Order description
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Order to create was successful
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Order created successfully.'
+                order:
+                  id: '032142ab-9f0d-443e-9347-d24ec084e985'
+                  status: 'PENDING'
+                  amount: 70.00
+                  total: 2
+                  items:
+                    - id: 'f250c14c-289d-4159-bd21-35828668bf7e'
+                      food_name: 'Small Fresh Tuna'
+                      food_price: 20.00
+                      count: 1
+                      menu: 'Breakfast Menu'
+                      restaurant_name: 'Tikkaway'
+                      restaurant_address: '49010 Mackenzie Isle'
+                      restaurant_country: 'United States'
+                    - id: '32739a7f-4667-402e-9d44-3e6493a4a564'
+                      food_name: 'Pizza'
+                      food_price: 50.00
+                      count: 1
+                      menu: 'Dinner Menu'
+                      restaurant_name: 'Tikkaway'
+                      restaurant_address: '49010 Mackenzie Isle'
+                      restaurant_country: 'United States'
+
+        '400':
+          description: ''
+          content:
+            application/json:
+              examples: # Multiple examples
+                Invalid Order:
+                  description: 'Order properties is not supplied or is invalid'
+                  value:
+                    code: 'VALIDATION_ERROR'
+                    message: 'Invalid Order.'
+                Invalid Item(s) Or Count:
+                  value:
+                    code: 'FAILED'
+                    message: 'Order not created - Invalid item(s) or count'
+
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /order/{orderId}:
+    get:
+      tags:
+        - Order
+      summary: Get an order by id
+      operationId: getOrder
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Returns order with the specified id
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 'SUCCESS'
+                  message: 'Order found.'
+                  order:
+                    id: '032142ab-9f0d-443e-9347-d24ec084e985'
+                    status: 'PENDING'
+                    amount: 70.00
+                    total: 2
+                    items:
+                      - id: 'f250c14c-289d-4159-bd21-35828668bf7e'
+                        food_name: 'Small Fresh Tuna'
+                        food_price: 20.00
+                        count: 1
+                        menu: 'Breakfast Menu'
+                        restaurant_name: 'Tikkaway'
+                        restaurant_address: '49010 Mackenzie Isle'
+                        restaurant_country: 'United States'
+                      - id: '32739a7f-4667-402e-9d44-3e6493a4a564'
+                        food_name: 'Pizza'
+                        food_price: 50.00
+                        count: 1
+                        menu: 'Dinner Menu'
+                        restaurant_name: 'Tikkaway'
+                        restaurant_address: '49010 Mackenzie Isle'
+                        restaurant_country: 'United States'
+        '204':
+          description: |
+            Order not found.
+
+            Returns no content.
+    patch:
+      tags:
+        - Order
+      summary: Pay for an order by id
+      description: This can only be done by an authenticated user who created the order.
+      operationId: updateOrder
+      parameters:
+        - $ref: '#/components/parameters/Order'
+      responses:
+        '200':
+          description: Order was paid successfully
+          content:
+            application/json:
+              example:
+                code: 'SUCCESS'
+                message: 'Order Paid.'
+                balance: 200
+                payment: 50
+
+        '400':
+          description: Order payment was not unsuccessful
+          content:
+            application/json:
+              examples:
+                Order Already Paid:
+                  value:
+                    code: 'FAILED'
+                    message: 'Order already paid.'
+                    payment:
+                      id: '032142ab-9f0d-443e-9347-d24ec084e985'
+                      status: 'PAID'
+                      amount: 70.00
+                      total: 2
+                Order Not Found:
+                  value:
+                    code: 'FAILED'
+                    message: 'Order not found - Invalid order identifier or user'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    SetCookie:
+      type: string
+      example: 'SESSION_ID=s%3AJ53LkauJpFv4V52pMomP2RtYPmBXOZ7f.OwqESkjSSoM6gWZ3DX5waeknqNvrHaow0bfCFx0qxwQ; Path=/; Expires=Thu, 22 Jun 2023 00:00:00 GMT; HttpOnly'
+    Country:
+      type: object
+      required:
+        - name
+        - code
+        - emoji
+      properties:
+        name:
+          type: string
+          example: 'United States'
+        code:
+          type: string
+          example: 'US'
+        emoji:
+          type: string
+          example: '🇺🇸'
+    Location:
+      type: object
+      required:
+        - address
+        - phone
+        - country
+      properties:
+        address:
+          type: string
+          example: '49010 Mackenzie Isle'
+        phone:
+          type: string
+          example: '1-676-377-5560 x90983'
+        country:
+          type: string
+          format: uuid
+          example: 'b6d849b7-8e44-4ce6-93b0-dcbf35b46273'
+    Restaurant:
+      type: object
+      required:
+        - name
+        - rating
+        - location
+      properties:
+        name:
+          type: string
+          example: 'Tikkaway'
+        rating:
+          type: integer
+          example: 7
+        location:
+          type: string
+          format: uuid
+          example: '4fa59413-4fca-4a39-a266-9ff6b1be7448'
+    Menu:
+      type: object
+      required:
+        - name
+        - restaurant
+      properties:
+        name:
+          type: string
+          example: 'Room Service Menu'
+        restaurant:
+          type: string
+          format: uuid
+          example: 'ef138084-a1d3-4a54-b3dc-d587db6400a4'
+    Food:
+      type: object
+      required:
+        - name
+        - price
+        - menu
+      properties:
+        name:
+          type: string
+          example: 'Rice'
+        price:
+          type: number
+          example: 100
+        menu:
+          type: string
+          format: uuid
+          example: '019e24da-dc36-44bc-bbc7-b628731f23a4'
+    Order:
+      type: object
+      required:
+        - orders
+      properties:
+        orders:
+          type: array
+          items:
+            type: string
+          example:
+            - foodId: 'f250c14c-289d-4159-bd21-35828668bf7e'
+              count: 1
+            - foodId: '32739a7f-4667-402e-9d44-3e6493a4a564'
+              count: 1
+
+  examples:
+    CountryNotFound:
+      value:
+        code: 'FAILED'
+        message: 'Country not found or User is not creator.'
+    RestaurantNotFound:
+      value:
+        code: 'FAILED'
+        message: 'Restaurant not found or User is not creator.'
+    LocationNotFound:
+      value:
+        code: 'FAILED'
+        message: 'Location not found or User is not creator.'
+    MenuNotFound:
+      value:
+        code: 'FAILED'
+        message: 'Menu not found or User is not creator.'
+    FoodNotFound:
+      value:
+        code: 'FAILED'
+        message: 'Food not found or User is not creator.'
+    InvalidCountryCode:
+      description: Country code is invalid
+      value:
+        code: 'INPUT_ERROR'
+        message: 'Code - Code is invalid.'
+
+  responses:
+    Unauthorized:
+      description: 'User is not authorized'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                example: UNAUTHENTICATED
+              message:
+                type: string
+                example: User not authenticated
+
+  parameters:
+    Country:
+      name: countryId
+      in: path
+      description: Country matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Restaurant:
+      name: restaurantId
+      in: path
+      description: Restaurant matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Location:
+      name: locationId
+      in: path
+      description: Location matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Menu:
+      name: menuId
+      in: path
+      description: Menu matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Food:
+      name: foodId
+      in: path
+      description: Food matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Order:
+      name: orderId
+      in: path
+      description: Order matching the specified id
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  requestBodies:
+    Pagination:
+      required: false
+      description: Pagination parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - limit
+              - offset
+            properties:
+              limit:
+                type: integer
+                example: 10
+              offset:
+                type: integer
+                example: 0
+    Country:
+      required: false
+      description: Country description
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Country'
+    Restaurant:
+      required: false
+      description: Restaurant description
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Restaurant'
+    Location:
+      required: false
+      description: Location description
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Country'
+    Menu:
+      required: false
+      description: Menu description
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Menu'
+    Food:
+      required: false
+      description: Food description
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Food'
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sid # cookie name
+
+# Apply cookie auth globally to all operations
+security:
+  - cookieAuth: []
