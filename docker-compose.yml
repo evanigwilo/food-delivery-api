@@ -1,0 +1,80 @@
+# version is now using "compose spec"
+# v2 and v3 are now combined!
+# docker-compose v1.27+ required
+version: "3"
+
+services:
+  api-server:
+    container_name: api-server
+    build:
+      context: .
+    volumes:
+      - ./src:/backend/src:ro
+    environment:
+      NODE_ENV: production
+      REDIS_DB_HOST: redis-db
+      DATABASE_HOST: host.docker.internal
+    depends_on:
+      redis:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+    networks:
+      - back-tier
+    # for consistent connection to the host on all platforms (Mac, Windows, and Linux)
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+  redis:
+    container_name: redis-db
+    image: redis:5.0-alpine3.10
+    volumes:
+      - redis-data:/data
+      - ./healthchecks:/healthchecks:ro
+    healthcheck:
+      test: /healthchecks/redis.sh
+      # check for 1 min before considered unhealthy
+      interval: 3s
+      retries: 20
+    ports:
+      - ${REDIS_DB_PORT}:${REDIS_DB_PORT}
+    networks:
+      - back-tier
+    restart: unless-stopped # always
+
+  postgres:
+    container_name: postgres-db
+    image: postgres:9.5
+    # env_file: .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_DB}
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+      - ./healthchecks:/healthchecks:ro
+    healthcheck:
+      test: /healthchecks/postgres.sh
+      # check for 1 min before considered unhealthy
+      interval: 3s
+      retries: 20
+    ports:
+      - ${DATABASE_PORT}:5432
+    networks:
+      - back-tier
+    restart: unless-stopped # always
+
+volumes:
+  # external: true -> keeps volumes when destroyed using docker-compose down -v
+  postgres-db:
+    name: postgres-db-volume
+    external: true
+
+  redis-data:
+    name: redis-data-volume
+
+networks:
+  back-tier:
