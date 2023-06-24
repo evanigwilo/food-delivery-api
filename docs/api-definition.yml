@@ -7,7 +7,7 @@ info:
 
     Useful links:
     - [Food-Delivery API Repository](https://github.com/evanigwilo/food-delivery-api)
-    - [The API Definition](https://github.com/evanigwilo/food-delivery-api/tree/main/docs/api-definition.yml)
+    - [The API Definition](https://github.com/evanigwilo/food-delivery-api/main/docs/api-definition.yml)
 tags:
   - name: User
     description: Access to user related endpoints

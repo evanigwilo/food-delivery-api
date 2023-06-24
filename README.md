@@ -8,7 +8,7 @@ The API can create user accounts (includes an initial amount), browse restaurant
 
 This solution uses `Node.js` runtime, `Express` for the API layer, `Redis` for user sessions, `Postgres` for relational data.
 
-You can explore the [Live REST API](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/evanigwilo/food-delivery-api/tree/main/docs/api-definition.yml)
+You can explore the [Live REST API](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/evanigwilo/food-delivery-api/main/docs/api-definition.yml)
 
 ## Demo accounts
 
