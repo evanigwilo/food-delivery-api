@@ -43,7 +43,7 @@ password: 123456;
 | GET     | /restaurant/{restaurantId} | Get a restaurant by id                                   |
 | PATCH   | /restaurant/{restaurantId} | Update restaurant by id                                  |
 | DELETE  | /restaurant/{restaurantId} | Delete restaurant by id                                  |
-| POST    | /menu                      | Gets menus for creating menus                            |
+| POST    | /menu                      | Gets menus for creating foods                            |
 | POST    | /menu/create               | Creates a menu                                           |
 | GET     | /menu/{menuId}             | Get a menu by id                                         |
 | PATCH   | /menu/{menuId}             | Update menu by id                                        |
@@ -87,7 +87,7 @@ $ cd food-delivery-api
 
 2. Change environmental variables filename from `.env.example` to `.env`
 
-3. Update the `.env` file configuration values `(optional)`
+3. Update the `.env` file configuration values (optional)
 
 4. At the root directory, run the following command:
 
@@ -99,7 +99,7 @@ $ docker volume create postgres-db-volume
 $ docker-compose --env-file .env -p food-deliver-stack -f docker-compose.yml up --build -d
 ```
 
-5. The api-server will be running at http://localhost:4000/v1
+5. The server will be running at http://localhost:4000/v1
 
 ## Useful commands
 
@@ -110,4 +110,4 @@ $ docker-compose --env-file .env -p food-deliver-stack -f docker-compose.yml dow
 
 ## References
 
-> - [Docker](https://www.docker.com) used to automate the deployment of applications in lightweight containers so that applications can work efficiently in different environments.
+> - [Docker](https://www.docker.com)
