@@ -1,0 +1,30 @@
+# Workspace settings
+.idea/
+# .vscode/
+
+# Environment variables file
+.env
+
+# Dependency directories
+node_modules/
+
+# Build directories
+build/
+
+# Temp directories
+tmp/
+temp/
+
+# SSL keys
+*.crt
+*.key
+
+# Logs
+logs
+*.log*
+
+# Coverage directory used by tools like jest or istanbul
+coverage
+
+# Optional eslint cache
+.eslintcache

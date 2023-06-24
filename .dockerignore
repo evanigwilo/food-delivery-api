@@ -1,0 +1,46 @@
+# Dependency directories
+node_modules/
+
+# Build directories
+build/
+
+# Nginx config
+nginx/
+
+# Container healthchecks
+healthcheck/
+
+# Docker file
+Dockerfile*
+.dockerignore
+docker-compose*
+
+# Certificates folder
+certkeys/
+
+# Scripts directories
+scripts/
+
+# Temp directories
+tmp/
+temp/
+
+# Logs
+logs
+*.log*
+
+# Coverage directory used by tools like jest or istanbul
+coverage
+
+# Optional eslint cache
+.eslintcache
+
+# Ignore .git and .cache folders
+.git
+.cache
+
+# Ignore all markdown files (md)
+*.md*
+
+# github related files
+.github/
